@@ -1,0 +1,25 @@
+services:
+  api:
+    build: ./api
+    restart: unless-stopped
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      CORS_ORIGINS: ${PORTAL_ORIGIN:-http://localhost:3200}
+    volumes:
+      - api-data:/data
+    ports:
+      - "4200:4200"
+
+  portal:
+    build:
+      context: ./console
+      args:
+        NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:4200/v1}
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "3200:3200"
+
+volumes:
+  api-data:
